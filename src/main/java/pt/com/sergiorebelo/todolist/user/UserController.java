@@ -29,6 +29,6 @@ public class UserController {
      */
     @RequestMapping("/")
     public void create(@RequestBody UserModel UserModel){ // vai recerber os dados do usuario que quero cadastrar. É PRECISO CRIAR UM OBJECTO OU CLASSE ONDE VAI ESTAR A ESTRUTURA DO USER
-        System.out.println(UserModel.name);
+        System.out.println(UserModel.getUsername());
     }
 }

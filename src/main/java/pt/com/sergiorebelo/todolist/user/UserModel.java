@@ -1,5 +1,11 @@
 package pt.com.sergiorebelo.todolist.user;
 
+import lombok.Data;
+
+// @Getters -> coloca apenas getters 
+// @Setters -> coloca apenas setters
+
+@Data // coloca getters e setters
 public class UserModel {
 
     private String username;
@@ -8,7 +14,7 @@ public class UserModel {
 
     // getters e setters para aceder a classes PRIVADAS
 
-    public void setUsername(String username) { // Metodo para inserir user name 
+   /** public void setUsername(String username) { // Metodo para inserir user name 
         this.username = username;
     }
     public String getUsername() { // Metodo para restornar user name 
@@ -26,5 +32,5 @@ public class UserModel {
     public String getPassword() {
         return password;
     }
-    
+    */
 }
