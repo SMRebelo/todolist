@@ -1,6 +1,9 @@
 package pt.com.sergiorebelo.todolist.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,12 +35,16 @@ public class UserController {
      * body
      */
     @RequestMapping("/")
-    public UserModel create(@RequestBody UserModel UserModel){ // vai recerber os dados do usuario que quero cadastrar. É PRECISO CRIAR UM OBJECTO OU CLASSE ONDE VAI ESTAR A ESTRUTURA DO USER
+    // ResponseEntity ao inves de UserModel porque dentro do mesmo pedido podemos ter um sucesso e um erro ! 
+    public ResponseEntity create(@RequestBody UserModel UserModel){ // vai recerber os dados do usuario que quero cadastrar. É PRECISO CRIAR UM OBJECTO OU CLASSE ONDE VAI ESTAR A ESTRUTURA DO USER
       var user = this.userRepository.findByUsername(UserModel.getUsername());// Valida de o nome que queremos criar no usuario já existe!
+
       if(user != null){
-        System.out.println("usuario já existe");
+        // mensagem de erro
+        // status CODE 
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("usuario já existe!");// retorna mensagem de erro. o httpStatus permite ver que mensagem de erro existem 
       }
        var userCreated = this.userRepository.save(UserModel);
-       return userCreated;
+       return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
     }
 }

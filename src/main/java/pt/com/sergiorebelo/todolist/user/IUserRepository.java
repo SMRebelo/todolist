@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 // o JPA já tem bibliotecas para fazer a comunicação com a base de dados 
 // O sina <> siginifica que a classe já recebe um genarator(são atributos mais dinamicos)
 public interface IUserRepository extends JpaRepository<UserModel, UUID> { 
-   UserModel findByUsername(String username);
+   UserModel findByUsername(String username);// Usando o spring para criar uma variavel "find" para validar de o usuario já existe ao criar
 }
