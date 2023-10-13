@@ -62,14 +62,27 @@ public class taskController {
     }
 
     @PutMapping("/{id}") // insere o id da tarefa para o url
-    public TaskModel update(@RequestBody TaskModel taskModel, @PathVariable UUID id, HttpServletRequest request) {
+    public ResponseEntity update(@RequestBody TaskModel taskModel, @PathVariable UUID id, HttpServletRequest request) {
         // este penultimo argumento saca o id da tarefa para o url - > EDITA UMA TAREFA
 
         var task = this.taskRepository.findById(id).orElse(null);
 
+        if (task == null) { // valida se a tarefa existe 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Tarefa nao encontrada");
+        }
+
+        var idUser = request.getAttribute("idUser");
+
+        if (!task.getIdUser().equals(idUser)) { // valida se o user é o mesmo da tarefa pelo id da tarefa 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Usuario nao tem permisao para alterar essa tarefa");
+        }
+
         Utils.copyNonNullProperties(taskModel, task);
 
-        return this.taskRepository.save(task);
+        var taskUpdated = this.taskRepository.save(task);
+        return ResponseEntity.ok().body(taskUpdated);
 
     }
 }
