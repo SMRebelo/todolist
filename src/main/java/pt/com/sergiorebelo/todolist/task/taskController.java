@@ -23,15 +23,21 @@ public class taskController {
     @PostMapping("/")
     public ResponseEntity created(@RequestBody TaskModel taskModel, HttpServletRequest request){
 
-        var idUser = request.getAttribute("idUser");
+        var idUser = request.getAttribute("idUser"); // associa o UUID ao idUser e verifa se o usuario esta log in 
         taskModel.setIdUser((UUID) idUser);
 
         var currentDate = LocalDateTime.now();
-        if(currentDate.isAfter(taskModel.getStartAt())){ // verifica se a data que estamos a enserir é maior que a data da criação 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data de inicio deve ser maior do que a data actual");
+        if(currentDate.isAfter(taskModel.getStartAt()) || currentDate.isAfter(taskModel.getEndAt()) ){ // verifica se a data que estamos a enserir é maior que a data da criação juntamento com a data de fim 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data de inicio/Fim deve ser maior do que a data actual");
+        }
+        if(taskModel.getStartAt().isAfter(taskModel.getEndAt())  ){ // verifica se a data final é maior do que a data inicial 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data de inicio deve ser menor qu a data do fim ");
         }
         var task = this.taskRepository.save(taskModel);
         return ResponseEntity.status(HttpStatus.OK).body(task);
     }
-    
+    public void list(HttpServletRequest request){
+        this.taskRepository.findAll();
+    }
+
 }
