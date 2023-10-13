@@ -1,11 +1,13 @@
 package pt.com.sergiorebelo.todolist.task;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,23 +23,38 @@ public class taskController {
     private ITaskRepository taskRepository;
 
     @PostMapping("/")
-    public ResponseEntity created(@RequestBody TaskModel taskModel, HttpServletRequest request){
+    public ResponseEntity created(@RequestBody TaskModel taskModel, HttpServletRequest request) {
 
-        var idUser = request.getAttribute("idUser"); // associa o UUID ao idUser e verifa se o usuario esta log in 
+        var idUser = request.getAttribute("idUser"); // associa o UUID ao idUser e verifa se o usuario esta log in
         taskModel.setIdUser((UUID) idUser);
 
         var currentDate = LocalDateTime.now();
-        if(currentDate.isAfter(taskModel.getStartAt()) || currentDate.isAfter(taskModel.getEndAt()) ){ // verifica se a data que estamos a enserir é maior que a data da criação juntamento com a data de fim 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data de inicio/Fim deve ser maior do que a data actual");
+        if (currentDate.isAfter(taskModel.getStartAt()) || currentDate.isAfter(taskModel.getEndAt())) { // verifica se a
+                                                                                                        // data que
+                                                                                                        // estamos a
+                                                                                                        // enserir é
+                                                                                                        // maior que a
+                                                                                                        // data da
+                                                                                                        // criação
+                                                                                                        // juntamento
+                                                                                                        // com a data de
+                                                                                                        // fim
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A data de inicio/Fim deve ser maior do que a data actual");
         }
-        if(taskModel.getStartAt().isAfter(taskModel.getEndAt())  ){ // verifica se a data final é maior do que a data inicial 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data de inicio deve ser menor qu a data do fim ");
+        if (taskModel.getStartAt().isAfter(taskModel.getEndAt())) { // verifica se a data final é maior do que a data
+                                                                    // inicial
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A data de inicio deve ser menor qu a data do fim ");
         }
         var task = this.taskRepository.save(taskModel);
         return ResponseEntity.status(HttpStatus.OK).body(task);
     }
-    public void list(HttpServletRequest request){
-        this.taskRepository.findAll();
+    @GetMapping("/")
+    public List<TaskModel> list(HttpServletRequest request) {
+        var idUser = request.getAttribute("idUser");
+        var tasks = this.taskRepository.findByIdUser((UUID) idUser);
+        return tasks;
     }
 
 }
