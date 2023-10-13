@@ -21,46 +21,54 @@ import pt.com.sergiorebelo.todolist.user.IUserRepository;
 public class FilterTaskAuth extends OncePerRequestFilter { // Metodo para fazer a validação usando o spring boot
 
     @Autowired
-    private IUserRepository userRepository; 
+    private IUserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // Vai pegar a autenticação (usuario e senha )
-        var authorization = request.getHeader("Authorization");
 
-        var authEncoded = authorization.substring("Basic".length()).trim();// substring é um metodo usado para extrair
-                                                                             // parte de um texto/ o trim() remove os
-                                                                             // espaços em branco que existirem
-        byte [] authDecode =  Base64.getDecoder().decode(authEncoded); // Descodifica o "Basic: usuario"    
+        var servLetPath = request.getServletPath();
+        if(servLetPath.equals("/tasks/")) {
+            
+            // Vai pegar a autenticação (usuario e senha )
+            var authorization = request.getHeader("Authorization");
 
-        var authString = new String(authDecode);                
+            var authEncoded = authorization.substring("Basic".length()).trim();// substring é um metodo usado para
+                                                                               // extrair
+                                                                               // parte de um texto/ o trim() remove os
+                                                                               // espaços em branco que existirem
+            byte[] authDecode = Base64.getDecoder().decode(authEncoded); // Descodifica o "Basic: usuario"
 
-        String[] credentials =  authString.split(":");
-        String username = credentials[0];
-        String password = credentials[1]; 
+            var authString = new String(authDecode);
 
-        System.out.println("Authorization");
-        System.out.println(username);
-        System.out.println(password);
+            String[] credentials = authString.split(":");
+            String username = credentials[0];
+            String password = credentials[1];
 
-        // Validar usuario
-        var user = this.userRepository.findByUsername(username);
-            if(user == null){
+            System.out.println("Authorization");
+            System.out.println(username);
+            System.out.println(password);
+
+            // Validar usuario
+            var user = this.userRepository.findByUsername(username);
+            if (user == null) {
                 response.sendError(401);
-            }else{
+            } else {
                 // Validar Senha
-               var passwordVerify =BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
-               if(passwordVerify.verified){
-                filterChain.doFilter(request, response);   
-               }else{
-                response.sendError(401);
-               }
-                // Segua viagem
+                var passwordVerify = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
+                if (passwordVerify.verified) {
+                     // Segua viagem
+                    request.setAttribute("idUser", user.getId());
+                    filterChain.doFilter(request, response);
+                } else {
+                    response.sendError(401);
+                }
+               
 
-                             
             }
-
+        }else{
+            filterChain.doFilter(request, response);
+        }
 
     }
 
